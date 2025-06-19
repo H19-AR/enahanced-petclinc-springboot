@@ -1,63 +1,73 @@
 pipeline {
     agent any
-
     tools {
-        maven 'Maven' // Ensure this matches your Jenkins tool config
+        maven 'maven'
     }
-
+    environment {
+        IMAGE_NAME = "springboot"
+        IMAGE_TAG = "latest"
+    }
     stages {
-        stage('Checkout from Git') {
+        stage('Checkout From Git') { 
             steps {
-                git url: 'https://github.com/H19-AR/enahanced-petclinc-springboot.git', branch: 'prod'
+                git branch: 'prod', url: 'https://github.com/bkrrajmali/enahanced-petclinc-springboot.git'
             }
         }
+        // stage('Maven Compile') { 
+        //     steps {
+        //         echo 'This Maven Compile Stage'
+        //         sh 'mvn compile'
+        //     }
+        // }
+        // stage('Maven Test') { 
+        //     steps {
+        //         echo 'This Maven Test Stage'
+        //         sh 'mvn test'
+        //     }
+        // }
+        // stage('File System Scan By Trivy') { 
+        //     steps {
+        //         echo 'Trivy Scanning Started'
+        //         sh 'trivy fs --format table --output trivy-report.txt --severity HIGH,CRITICAL .'
+        //     }
+        // }
 
-      //  stage('Maven Compile') {
-      //      steps {
-      //          echo 'This is the Maven compile stage'
-                sh 'mvn compile'
-      //      }
-       // }
-
-       // stage('Maven Test') {
-         //   steps {
-         //       echo 'This is the Maven test stage'
-         //       sh 'mvn test'
-         //   }
-       // }
-
-        stage('File System Scan By Trivy') {
+        // stage('Sonar Analysis') { 
+        //     environment {
+        //         SCANNER_HOME = tool 'Sonar-scanner'
+        //     }
+        //     steps {
+        //         withSonarQubeEnv('sonarserver') {
+        //             sh '''
+        //                   $SCANNER_HOME/bin/sonar-scanner \
+        //                   -Dsonar.organization=bkrrajmali \
+        //                   -Dsonar.projectName=SpringBootPet \
+        //                   -Dsonar.projectKey=bkrrajmali_springbootpet \
+        //                   -Dsonar.java.binaries=. \
+        //                   -Dsonar.exclusions=**/trivy-report.txt
+        //             '''
+        //         }
+        //     }
+        // }
+        // stage('Sonar Quality Gate') {
+        //         steps {
+        //             timeout(time: 1, unit: 'MINUTES') {
+        //                 waitForQualityGate abortPipeline: true, credentialsId: 'sonar'
+        //         }
+        //     }
+        // }
+        stage('Maven Package') { 
             steps {
-                echo 'Trivy Scanning Started'
-                sh 'trivy fs --format table --output trivy-report.txt --severity HIGH,CRITICAL .'
+                echo 'This Maven Package Stage'
+                sh 'mvn package'
             }
         }
-
-        stage('Sonar Analysis') {
-            environment {
-                SCANNER_HOME = tool 'Sonar-scanner'  // Make sure 'Sonar-scanner' is defined in Jenkins Global Tool Configuration
-            }
+        stage('Docker Build') { 
             steps {
-                withSonarQubeEnv('sonarserver') {  // Make sure 'sonarserver' is defined in Jenkins Configuration
-                    sh '''
-                        $SCANNER_HOME/bin/sonar-scanner \
-                        -Dsonar.organization=harshachintala \
-                        -Dsonar.projectName=SpringBootPet \
-                        -Dsonar.projectKey=harshachintala_springbootpet \
-                        -Dsonar.java.binaries=. \
-                        -Dsonar.exclusions=**/trivy-report.txt
-                    '''
+                script {
+                    echo 'Creating Docker Image'
+                        docker.build("$IMAGE_NAME:$IMAGE_TAG")
                 }
             }
         }
-
-        // Sonar Quality Gate stage
-        stage('Sonar Quality Gate') {
-            steps {
-                timeout(time: 10, unit: 'MINUTES') {
-                    waitForQualityGate abortPipeline: true, credentialsId: 'sonar'
-                }
-            }
-        }
-    }
-}
+        
