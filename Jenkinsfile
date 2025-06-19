@@ -25,10 +25,38 @@ pipeline {
                 sh 'mvn test'
             }
         }
+
         stage('File System Scan By Trivy') {
-            steps{
+            steps {
                 echo 'Trivy Scanning Started'
                 sh 'trivy fs --format table --output trivy-report.txt --severity HIGH,CRITICAL .'
+            }
+        }
+
+        stage('Sonar Analysis') {
+            environment {
+                SCANNER_HOME = tool 'Sonar-scanner'  // Make sure 'Sonar-scanner' is defined in Jenkins Global Tool Configuration
+            }
+            steps {
+                withSonarQubeEnv('sonarserver') {  // Make sure 'sonarserver' is defined in Jenkins Configuration
+                    sh '''
+                        $SCANNER_HOME/bin/sonar-scanner \
+                        -Dsonar.organization=H19-AR \
+                        -Dsonar.projectName=SpringBootPet \
+                        -Dsonar.projectKey=harshachintala_springbootpet \
+                        -Dsonar.java.binaries=. \
+                        -Dsonar.exclusions=**/trivy-report.txt
+                    '''
+                }
+            }
+        }
+
+        // Sonar Quality Gate stage
+        stage('Sonar Quality Gate') {
+            steps {
+                timeout(time: 1, unit: 'MINUTES') {
+                    waitForQualityGate abortPipeline: true, credentialsId: 'sonar'
+                }
             }
         }
     }
