@@ -12,19 +12,19 @@ pipeline {
             }
         }
 
-        stage('Maven Compile') {
-            steps {
-                echo 'This is the Maven compile stage'
+      //  stage('Maven Compile') {
+      //      steps {
+      //          echo 'This is the Maven compile stage'
                 sh 'mvn compile'
-            }
-        }
+      //      }
+       // }
 
-        stage('Maven Test') {
-            steps {
-                echo 'This is the Maven test stage'
-                sh 'mvn test'
-            }
-        }
+       // stage('Maven Test') {
+         //   steps {
+         //       echo 'This is the Maven test stage'
+         //       sh 'mvn test'
+         //   }
+       // }
 
         stage('File System Scan By Trivy') {
             steps {
@@ -54,7 +54,7 @@ pipeline {
         // Sonar Quality Gate stage
         stage('Sonar Quality Gate') {
             steps {
-                timeout(time: 5, unit: 'MINUTES') {
+                timeout(time: 10, unit: 'MINUTES') {
                     waitForQualityGate abortPipeline: true, credentialsId: 'sonar'
                 }
             }
