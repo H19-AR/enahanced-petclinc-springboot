@@ -13,18 +13,21 @@ pipeline {
                 git branch: 'prod', url: 'https://github.com/bkrrajmali/enahanced-petclinc-springboot.git'
             }
         }
+
         // stage('Maven Compile') { 
         //     steps {
         //         echo 'This Maven Compile Stage'
         //         sh 'mvn compile'
         //     }
         // }
+        
         // stage('Maven Test') { 
         //     steps {
         //         echo 'This Maven Test Stage'
         //         sh 'mvn test'
         //     }
         // }
+        
         // stage('File System Scan By Trivy') { 
         //     steps {
         //         echo 'Trivy Scanning Started'
@@ -49,6 +52,7 @@ pipeline {
         //         }
         //     }
         // }
+        
         // stage('Sonar Quality Gate') {
         //         steps {
         //             timeout(time: 1, unit: 'MINUTES') {
@@ -56,18 +60,21 @@ pipeline {
         //         }
         //     }
         // }
+
         stage('Maven Package') { 
             steps {
                 echo 'This Maven Package Stage'
                 sh 'mvn package'
             }
         }
+
         stage('Docker Build') { 
             steps {
                 script {
                     echo 'Creating Docker Image'
-                        docker.build("$IMAGE_NAME:$IMAGE_TAG")
+                    docker.build("$IMAGE_NAME:$IMAGE_TAG")
                 }
             }
         }
-        
+    }
+}
