@@ -41,7 +41,7 @@ pipeline {
                 withSonarQubeEnv('sonarserver') {  // Make sure 'sonarserver' is defined in Jenkins Configuration
                     sh '''
                         $SCANNER_HOME/bin/sonar-scanner \
-                        -Dsonar.organization= harshachintala \
+                        -Dsonar.organization=harshachintala \
                         -Dsonar.projectName=SpringBootPet \
                         -Dsonar.projectKey=harshachintala_springbootpet \
                         -Dsonar.java.binaries=. \
